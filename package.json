@@ -1,10 +1,15 @@
 {
   "name": "@fabiospampinato/template",
-  "repository": "github:fabiospampinato/template",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabiospampinato/template.git"
+  },
   "description": "A super-simple way to create new projects based on templates.",
   "version": "2.3.1",
   "type": "module",
-  "bin": "dist/bin.js",
+  "bin": {
+    "template": "dist/bin.js"
+  },
   "main": "dist/index.js",
   "exports": "./dist/index.js",
   "types": "dist/index.d.ts",
