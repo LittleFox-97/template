@@ -1,25 +1,11 @@
 {
   "name": "@fabiospampinato/template",
+  "type": "module",
+  "version": "2.3.1",
+  "description": "A super-simple way to create new projects based on templates.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fabiospampinato/template.git"
-  },
-  "description": "A super-simple way to create new projects based on templates.",
-  "version": "2.3.1",
-  "type": "module",
-  "bin": {
-    "template": "dist/bin.js"
-  },
-  "main": "dist/index.js",
-  "exports": "./dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "clean": "tsex clean",
-    "compile": "tsex compile",
-    "compile:watch": "tsex compile --watch",
-    "test": "tsex test",
-    "test:watch": "tsex test --watch",
-    "prepublishOnly": "tsex prepare"
   },
   "keywords": [
     "template",
@@ -29,6 +15,20 @@
     "cli",
     "simple"
   ],
+  "exports": "./dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "template": "dist/bin.js"
+  },
+  "scripts": {
+    "clean": "tsex clean",
+    "compile": "tsex compile",
+    "compile:watch": "tsex compile --watch",
+    "test": "tsex test",
+    "test:watch": "tsex test --watch",
+    "prepublishOnly": "tsex prepare"
+  },
   "dependencies": {
     "json-archive": "^2.1.0",
     "lodash": "^4.17.21",
@@ -38,10 +38,12 @@
     "specialist": "^1.3.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.197",
-    "@types/node": "^20.4.10",
-    "fava": "^0.2.1",
-    "tsex": "^3.0.1",
-    "typescript": "^5.1.6"
+    "@antfu/eslint-config": "5.4.1",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.6.0",
+    "eslint": "9.36.0",
+    "fava": "^0.3.5",
+    "tsex": "^4.0.2",
+    "typescript": "^5.9.2"
   }
 }
