@@ -4,6 +4,6 @@
     "noImplicitReturns": false,
     "noUnusedParameters": false,
     "declaration": true,
-    "declarationDir": "./types"
+    "declarationDir": "./dist/types"
   }
 }
