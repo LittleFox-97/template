@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="resources/logo.png" width=500 alt="Logo">
 </p>
@@ -108,10 +107,11 @@ The "template.json" file should look somewhat like this:
 
 ```jsonc
 {
-  "delimiters": [ // This is optional
+  // This is optional
+  "delimiters": {
     "start": "[[",
     "end": "]]"
-  ],
+  },
   "variables": {
     "name": {
       "type": "string"

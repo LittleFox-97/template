@@ -1,7 +1,28 @@
 {
-  "extends": "tsex/tsconfig.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "strict": true,
     "noImplicitReturns": false,
-    "noUnusedParameters": false
-  }
+    "noUnusedParameters": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test"
+  ]
 }
