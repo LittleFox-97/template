@@ -1,33 +1,32 @@
-
 /* MAIN */
 
-type VariableBoolean = {
-  type: 'boolean',
+interface VariableBoolean {
+  type: 'boolean'
   default?: boolean
-};
+}
 
-type VariableString = {
-  type: 'string',
+interface VariableString {
+  type: 'string'
   default?: string
-};
+}
 
 type Variable = (
-  VariableBoolean |
-  VariableString
-);
+  VariableBoolean
+  | VariableString
+)
 
-type MetadataGlobal = {
+interface MetadataGlobal {
   templates?: Record<string, MetadataLocal>
-};
+}
 
-type MetadataLocal = {
+interface MetadataLocal {
   delimiters?: {
-    start: string,
+    start: string
     end: string
-  },
+  }
   variables?: Record<string, Variable>
-};
+}
 
 /* EXPORT */
 
-export type {MetadataGlobal, MetadataLocal};
+export type { MetadataGlobal, MetadataLocal }

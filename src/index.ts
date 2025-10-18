@@ -1,240 +1,211 @@
-
+/* eslint-disable no-console */
 /* IMPORT */
 
-import _ from 'lodash';
-import {pack, visit} from 'json-archive';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import process from 'node:process';
-import picolate from 'picolate';
-import Base64 from 'radix64-encoding';
-import {color} from 'specialist';
-import {HOOK_POSTINSTALL_NAME} from './constants';
-import Utils from './utils';
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { pack, visit } from 'json-archive'
+import _ from 'lodash'
+import picolate from 'picolate'
+import Base64 from 'radix64-encoding'
+import Utils from './utils'
 
 /* MAIN */
 
-//TODO: Extract needed variables automatically again, somehow
+// TODO: Extract needed variables automatically again, somehow
 
 const Template = {
 
   /* API */
 
-  cd: async ( template: string ): Promise<void> => {
+  cd: async (template: string): Promise<void> => {
+    const templatePath = Utils.template.getPath (template)
+    const templateExists = await Utils.fs.isFolder (templatePath)
 
-    const templatePath = Utils.template.getPath ( template );
-    const templateExists = await Utils.fs.isFolder ( templatePath );
+    if (!templateExists) {
+      throw new Error (`Template "${template}" is not installed`)
+    }
 
-    if ( !templateExists ) throw new Error ( `Template "${template}" is not installed` );
-
-    Utils.shell.cd ( templatePath );
-
+    Utils.shell.cd (templatePath)
   },
 
   ls: async (): Promise<void> => {
+    const templateNames = await Utils.templates.getNames ()
 
-    const templateNames = await Utils.templates.getNames ();
-
-    if ( templateNames.length ) {
-
-      console.log ( templateNames.join ( '\n' ) );
-
+    if (templateNames.length) {
+      console.log (templateNames.join ('\n'))
     } else {
-
-      console.log ( 'No templates installed' );
-
+      console.log ('No templates installed')
     }
-
   },
 
-  new: async ( template: string, project: string ): Promise<void> => {
+  new: async (template: string, project: string): Promise<void> => {
+    const templatePath = Utils.template.getPath(template)
+    const templateExists = await Utils.fs.isFolder (templatePath)
 
-    const templatePath = await Utils.template.getPath ( template );
-    const templateExists = await Utils.fs.isFolder ( templatePath );
+    if (!templateExists) {
+      throw new Error (`Template "${template}" is not installed`)
+    }
 
-    if ( !templateExists ) throw new Error ( `Template "${template}" is not installed` );
+    const inputPath = path.join (templatePath, 'template')
+    const inputExists = await Utils.fs.isFolder (inputPath)
 
-    const inputPath = path.join ( templatePath, 'template' );
-    const inputExists = await Utils.fs.isFolder ( inputPath );
+    if (!inputExists) {
+      throw new Error (`Template "${template}" is not a valid template`)
+    }
 
-    if ( !inputExists ) throw new Error ( `Template "${template}" is not a valid template` );
+    const outputPath = path.join (process.cwd (), project)
+    const outputExists = await Utils.fs.isFolder (outputPath)
 
-    const outputPath = path.join ( process.cwd (), project );
-    const outputExists = await Utils.fs.isFolder ( outputPath );
+    if (outputExists) {
+      throw new Error (`Project "${project}" already exists`)
+    }
 
-    if ( outputExists ) throw new Error ( `Project "${project}" already exists` );
+    await Template.update (template) // Auto updating
 
-    await Template.update ( template ); // Auto updating
+    const templatePack = await pack (inputPath)
+    const templateMetadata = await Utils.metadata.get (template)
+    const templateDelimiters: [string, string] | undefined = templateMetadata?.delimiters ? [templateMetadata.delimiters.start, templateMetadata.delimiters.end] : undefined
+    const templateVariables: Record<string, unknown> = {}
 
-    const templatePack = await pack ( inputPath );
-    const templateMetadata = await Utils.metadata.get ( template );
-    const templateDelimiters: [string, string] | undefined = templateMetadata?.delimiters ? [templateMetadata.delimiters.start, templateMetadata.delimiters.end] : undefined;
-    const templateVariables: Record<string, unknown> = {};
+    console.log ('')
 
-    console.log ( '' );
+    for (const variable in templateMetadata?.variables) {
+      const variableType = templateMetadata?.variables?.[variable]?.type
+      const variableInitial = templateMetadata?.variables?.[variable]?.default
 
-    for ( const variable in templateMetadata?.variables ) {
-      const variableType = templateMetadata?.variables?.[variable]?.type;
-      const variableInitial = templateMetadata?.variables?.[variable]?.default;
-      if ( variableType === 'string' ) {
-        const initial = _.isString ( variableInitial ) ? variableInitial : undefined;
-        const value = await Utils.prompt.string ( `${variable}:`, initial );
-        if ( value === undefined ) return;
-        templateVariables[variable] = value;
-      } else if ( variableType === 'boolean' ) {
-        const initial = _.isBoolean ( variableInitial ) ? variableInitial : undefined;
-        const value = await Utils.prompt.boolean ( `${variable}:`, initial );
-        if ( value === undefined ) return;
-        templateVariables[variable] = value;
+      if (variableType === 'string') {
+        const initial = _.isString (variableInitial) ? variableInitial : undefined
+        const value = await Utils.prompt.string (`${variable}:`, initial)
+
+        if (value === undefined) {
+          return
+        }
+
+        templateVariables[variable] = value
+      } else if (variableType === 'boolean') {
+        const initial = _.isBoolean (variableInitial) ? variableInitial : undefined
+        const value = await Utils.prompt.boolean (`${variable}:`, initial)
+
+        if (value === undefined) {
+          return
+        }
+
+        templateVariables[variable] = value
       } else {
-        throw new Error ( `Unsupported variable type "${variableType}"` );
+        throw new Error (`Unsupported variable type`)
       }
     }
 
-    const templatePackRendered = await visit ( templatePack, {
-      transform: file => {
-        const template = Base64.decodeStr ( file.contents );
-        if ( Utils.fs.isBinary ( template ) ) return file;
-        const templateTrimmed = template.replace ( /\r?\n[^\S\r\n]+({{.*?}})[^\S\r\n]*\r?$/gm, '$1' );
-        const templateContext = { _, ...templateVariables };
-        const templateOptions = { delimiters: templateDelimiters };
-        const templateRendered = picolate.render ( templateTrimmed, templateContext, templateOptions );
-        file.contents = templateRendered;
-        file.encoding = 'utf8';
-        return file;
-      }
-    });
+    const templatePackRendered = await visit (templatePack, {
+      transform: (file) => {
+        const template = Base64.decodeStr (file.contents)
 
-    await visit ( templatePackRendered, {
-      visit: async ( fileRelativePath, file ) => {
-        const filePath = path.join ( outputPath, fileRelativePath );
-        await fs.mkdir ( path.dirname ( filePath ), { recursive: true } );
-        await fs.writeFile ( filePath, file.contents, file.encoding );
-      }
-    });
+        if (Utils.fs.isBinary (template)) {
+          return file
+        }
 
-    console.log ( `Project "${project}" created successfully` );
+        const templateTrimmed = template.replace (/\r?\n[^\S\r\n]+(\{\{.*?\}\})[^\S\r\n]*\r?$/gm, '$1')
+        const templateContext = { _, ...templateVariables }
+        const templateOptions = { delimiters: templateDelimiters }
+        const templateRendered = picolate.render (templateTrimmed, templateContext, templateOptions)
+        file.contents = templateRendered
+        file.encoding = 'utf8'
+        return file
+      },
+    })
 
-    const postinstallPath = path.join ( templatePath, 'hooks', HOOK_POSTINSTALL_NAME );
-    const postinstallExists = await Utils.fs.isFile ( postinstallPath );
+    await visit (templatePackRendered, {
+      visit: async (fileRelativePath, file) => {
+        const filePath = path.join (outputPath, fileRelativePath)
+        await fs.mkdir (path.dirname (filePath), { recursive: true })
+        await fs.writeFile (filePath, file.contents, file.encoding)
+      },
+    })
 
-    if ( postinstallExists ) {
-
-      process.chdir ( outputPath );
-
-      const postinstallModule = await import ( postinstallPath );
-      const postinstall = postinstallModule.default || postinstallModule.postinstall;
-
-      await postinstall ( _.cloneDeep ( templateVariables ) );
-
-    }
-
+    console.log (`Project "${project}" created successfully`)
   },
 
-  install: async ( repository: string, template: string ): Promise<void> => {
+  install: async (repository: string, template: string): Promise<void> => {
+    const gitPath = await Utils.repository.getEndpoint (repository)
 
-    const gitPath = await Utils.repository.getEndpoint ( repository );
+    if (!gitPath) {
+      throw new Error (`Invalid repository "${repository}"`)
+    }
 
-    if ( !gitPath ) throw new Error ( `Invalid repository "${repository}"` );
+    const outputPath = Utils.template.getPath(template)
+    const outputExists = await Utils.fs.isFolder (outputPath)
 
-    const outputPath = await Utils.template.getPath ( template );
-    const outputExists = await Utils.fs.isFolder ( outputPath );
-
-    if ( outputExists ) throw new Error ( `Template "${template}" is already installed` );
+    if (outputExists) {
+      throw new Error (`Template "${template}" is already installed`)
+    }
 
     try {
-
-      if ( Utils.path.isUrl ( gitPath ) ) {
-
-        await Utils.shell.exec ( `git clone "${gitPath}" "${outputPath}"` );
-
+      if (Utils.path.isUrl (gitPath)) {
+        await Utils.shell.exec (`git clone "${gitPath}" "${outputPath}"`)
       } else {
-
-        await Utils.shell.exec ( `rsync -av --exclude=*/.git "${gitPath}/" "${outputPath}"` );
-
+        await Utils.shell.exec (`rsync -av --exclude=*/.git "${gitPath}/" "${outputPath}"`)
       }
 
-      console.log ( `Template "${repository}" installed as "${template}"` );
-      console.log ( `Run "template new ${template} ${color.blue ( '<project>' )}" to instantiate it` );
+      console.log (`Template "${repository}" installed as "${template}"`)
+      console.log (`Run "template new ${template}" to instantiate it`)
+    } catch (error: unknown) {
+      console.error (`Failed to install template "${template}"`)
+      console.error (error)
+    }
+  },
 
-    } catch ( error: unknown ) {
+  uninstall: async (template: string): Promise<void> => {
+    const templatePath = Utils.template.getPath(template)
+    const templateExists = await Utils.fs.isFolder (templatePath)
 
-      console.error ( `Failed to install template "${template}"` );
-      console.error ( error );
-
+    if (!templateExists) {
+      throw new Error (`Template "${template}" is not installed`)
     }
 
+    await Utils.fs.delete (templatePath)
   },
 
-  uninstall: async ( template: string ): Promise<void> => {
+  update: async (template?: string): Promise<void> => {
+    if (!template) { // Updating all templates
+      const templateNames = await Utils.templates.getNames ()
 
-    const templatePath = await Utils.template.getPath ( template );
-    const templateExists = await Utils.fs.isFolder ( templatePath );
-
-    if ( !templateExists ) throw new Error ( `Template "${template}" is not installed` );
-
-    await Utils.fs.delete ( templatePath );
-
-  },
-
-  update: async ( template?: string ): Promise<void> => {
-
-    if ( !template ) { // Updating all templates
-
-      const templateNames = await Utils.templates.getNames ();
-
-      if ( templateNames.length ) {
-
-        for ( const templateName of templateNames ) {
-
-          await Template.update ( templateName );
-
+      if (templateNames.length) {
+        for (const templateName of templateNames) {
+          await Template.update (templateName)
         }
-
       } else {
-
-        console.log ( 'No templates installed' );
-
+        console.log ('No templates installed')
       }
-
     } else { // Updating a single template
+      const templatePath = Utils.template.getPath(template)
+      const templateExists = await Utils.fs.isFolder (templatePath)
 
-      const templatePath = await Utils.template.getPath ( template );
-      const templateExists = await Utils.fs.isFolder ( templatePath );
-
-      if ( !templateExists ) throw new Error ( `Template "${template}" is not installed` );
+      if (!templateExists) {
+        throw new Error (`Template "${template}" is not installed`)
+      }
 
       try {
+        const gitPath = path.join (templatePath, '.git')
+        const hasGit = await Utils.fs.isFolder (gitPath)
 
-        const gitPath = path.join ( templatePath, '.git' );
-        const hasGit = await Utils.fs.isFolder ( gitPath );
+        if (hasGit) {
+          console.log ('')
+          console.log (`Updating template "${template}"`)
 
-        if ( hasGit ) {
-
-          console.log ( '' );
-          console.log ( `Updating template "${template}"` );
-
-          await Utils.shell.exec ( 'git pull', { cwd: templatePath } );
-
+          await Utils.shell.exec ('git pull', { cwd: templatePath })
         } else {
-
-          console.error ( `Template "${template}" is not a git repository, so it cannot be updated` );
-
+          console.error (`Template "${template}" is not a git repository, so it cannot be updated`)
         }
-
-      } catch ( error: unknown ) {
-
-        console.error ( `Failed to update template "${template}"` );
-        console.error ( error );
-
+      } catch (error: unknown) {
+        console.error (`Failed to update template "${template}"`)
+        console.error (error)
       }
-
     }
+  },
 
-  }
-
-};
+}
 
 /* EXPORT */
 
-export default Template;
+export default Template

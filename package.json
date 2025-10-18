@@ -23,9 +23,13 @@
     "compile:watch": "tsex compile --watch",
     "test": "tsex test",
     "test:watch": "tsex test --watch",
-    "prepublishOnly": "tsex prepare"
+    "prepublishOnly": "tsex prepare",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {
+    "@inquirer/prompts": "7.9.0",
+    "commander": "^14.0.1",
     "json-archive": "^2.1.0",
     "lodash": "^4.17.21",
     "picolate": "^2.2.0",

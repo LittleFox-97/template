@@ -1,53 +1,44 @@
 #!/usr/bin/env node
 
-/* IMPORT */
+import process from 'node:process'
+// src/bin.ts
+import { program } from 'commander'
+import Template from '.'
 
-import {bin} from 'specialist';
-import Template from '.';
+program.name('template').description('A super-simple way to create new projects based on templates')
 
-/* MAIN */
+program.action(() => {
+  console.log('Execute "template --help" for help')
+})
 
-bin ( 'template', 'A super-simple way to create new projects based on templates' )
-  /* DEFAULT */
-  .action ( () => { //TODO: Make this into a wizard instead, or show the help menu
-    console.log ( 'Execute "template --help" for help' );
+program.command('cd <template>')
+  .description('CD into a local template')
+  .action(async (template: string) => {
+    return Template.cd(template)
   })
-  /* CD */
-  .command ( 'cd', 'CD into a local template' )
-  .argument ( '<template>', 'The template to CD into' )
-  .action ( ( options, args ) => {
-    return Template.cd ( args[0] );
+
+program.command('ls')
+  .description('List installed templates')
+  .action(async () => Template.ls())
+
+program.command('new <template> <project>')
+  .description('Create a project from a template')
+  .action(async (template: string, project: string) => Template.new(template, project))
+
+program.command('install <repository> <template>')
+  .description('Install a template from a repository')
+  .action(async (repository: string, template: string) => Template.install(repository, template))
+
+program.command('uninstall <template>')
+  .description('Uninstall a template')
+  .action(async (template: string) => {
+    return Template.uninstall(template)
   })
-  /* LS */
-  .command ( 'ls', 'List installed templates' )
-  .action ( () => {
-    return Template.ls ();
+
+program.command('update [template]')
+  .description('Update one or all templates')
+  .action(async (template?: string) => {
+    return Template.update(template)
   })
-  /* NEW */
-  .command ( 'new', 'Create a p roject from a template' )
-  .argument ( '<template>', 'Template name' )
-  .argument ( '<project>', 'Project name' )
-  .action ( ( options, args ) => {
-    return Template.new ( args[0], args[1] );
-  })
-  /* INSTALL */
-  .command ( 'install', 'Install a template from a repository' )
-  .argument ( '<repository>', 'Git endpoint url, GitHub shorthand, or local path' )
-  .argument ( '<template>', 'Template name' )
-  .action ( ( options, args ) => {
-    return Template.install ( args[0], args[1] );
-  })
-  /* UNINSTALL */
-  .command ( 'uninstall', 'Uninstall a template' )
-  .argument ( '<template>', 'Template name' )
-  .action ( ( options, args ) => {
-    return Template.uninstall ( args[0] );
-  })
-  /* UPDATE */
-  .command ( 'update', 'Update one or all templates' )
-  .argument ( '[template]', 'Template name' )
-  .action ( ( options, args ) => {
-    return Template.update ( args[0] );
-  })
-  /* RUN */
-  .run ();
+
+program.parse(process.argv)
