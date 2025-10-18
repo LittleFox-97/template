@@ -34,8 +34,10 @@
     "specialist": "^1.4.5"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.8.1",
+    "eslint": "^9.37.0",
     "fava": "^0.3.5",
     "tsex": "^4.0.2",
     "typescript": "^5.9.3"
