@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="resources/logo.png" width=500 alt="Logo">
 </p>
@@ -108,10 +107,11 @@ The "template.json" file should look somewhat like this:
 
 ```jsonc
 {
-  "delimiters": [ // This is optional
+  "delimiters": {
+    // This is optional
     "start": "[[",
     "end": "]]"
-  ],
+    },
   "variables": {
     "name": {
       "type": "string"
@@ -179,7 +179,7 @@ There's also a way to override this metadata, by having a file at `~/.templates/
 This is very useful because:
 
 - In order for a template to be usable by a wide range of people it makes no sense to specify for example a default value for the "author" variable.
-- Still, once you install a template you probably know who the author is going to be, and you don't want to type out that informattion a million times, so this way you can override defaults for a template.
+- Still, once you install a template you probably know who the author is going to be, and you don't want to type out that information a million times, so this way you can override defaults for a template.
 
 </details>
 
