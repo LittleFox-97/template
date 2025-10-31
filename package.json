@@ -1,21 +1,10 @@
 {
   "name": "@fabiospampinato/template",
-  "repository": "github:fabiospampinato/template",
-  "description": "A super-simple way to create new projects based on templates.",
-  "version": "2.3.1",
   "type": "module",
-  "bin": "dist/bin.js",
-  "main": "dist/index.js",
-  "exports": "./dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "clean": "tsex clean",
-    "compile": "tsex compile",
-    "compile:watch": "tsex compile --watch",
-    "test": "tsex test",
-    "test:watch": "tsex test --watch",
-    "prepublishOnly": "tsex prepare"
-  },
+  "version": "2.3.1",
+  "packageManager": "pnpm@10.20.0",
+  "description": "A super-simple way to create new projects based on templates.",
+  "repository": "github:fabiospampinato/template",
   "keywords": [
     "template",
     "scaffold",
@@ -24,19 +13,33 @@
     "cli",
     "simple"
   ],
+  "exports": "./dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/bin.js",
+  "scripts": {
+    "clean": "tsex clean",
+    "compile": "tsex compile",
+    "compile:watch": "tsex compile --watch",
+    "test": "tsex test",
+    "test:watch": "tsex test --watch",
+    "prepublishOnly": "tsex prepare"
+  },
   "dependencies": {
     "json-archive": "^2.1.0",
     "lodash": "^4.17.21",
     "picolate": "^2.2.0",
-    "prask": "^2.0.0",
-    "radix64-encoding": "^2.0.1",
-    "specialist": "^1.3.0"
+    "prask": "^2.2.3",
+    "radix64-encoding": "^2.0.2",
+    "specialist": "^1.4.5"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.197",
-    "@types/node": "^20.4.10",
-    "fava": "^0.2.1",
-    "tsex": "^3.0.1",
-    "typescript": "^5.1.6"
+    "@antfu/eslint-config": "^6.2.0",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.9.2",
+    "eslint": "^9.38.0",
+    "fava": "^0.3.5",
+    "tsex": "^4.0.2",
+    "typescript": "^5.9.3"
   }
 }
