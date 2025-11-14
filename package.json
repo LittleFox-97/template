@@ -25,28 +25,31 @@
   "scripts": {
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "clean": "tsex clean",
-    "compile": "tsex compile",
-    "compile:watch": "tsex compile --watch",
-    "test": "tsex test",
-    "test:watch": "tsex test --watch",
-    "prepublishOnly": "tsex prepare"
+    "clean": "rimraf dist",
+    "prebuild": "clean",
+    "build": "clean && lint:fix && tsc",
+    "build:watch": "tsc --watch",
+    "test": "fava",
+    "test:watch": "fava --watch",
+    "dev": "build:watch & test:watch",
+    "start": "node dist/bin.js"
   },
   "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "cac": "^6.7.14",
     "json-archive": "^2.1.0",
-    "lodash": "^4.17.21",
     "picolate": "^2.2.0",
     "prask": "^2.2.3",
     "radix64-encoding": "^2.0.2",
+    "remeda": "^2.32.0",
     "specialist": "^1.4.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.2.0",
-    "@types/lodash": "^4.17.20",
     "@types/node": "^24.10.1",
     "eslint": "^9.39.1",
     "fava": "^0.3.5",
-    "tsex": "^4.0.2",
+    "rimraf": "^6.1.0",
     "typescript": "^5.9.3"
   }
 }

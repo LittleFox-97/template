@@ -5,8 +5,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import _ from 'lodash'
 import * as prask from 'prask'
+import { isPlainObject, merge } from 'remeda'
 import { METADATA_GLOBAL_NAME, METADATA_LOCAL_NAME, TEMPLATES_PATH } from './constants'
 
 const Utils = {
@@ -44,7 +44,7 @@ const Utils = {
         const fileContent = await fs.readFile (filePath, 'utf8')
         const fileValue = JSON.parse (fileContent)
 
-        if (!_.isPlainObject (fileValue)) {
+        if (!isPlainObject (fileValue)) {
           return
         }
 
@@ -70,7 +70,8 @@ const Utils = {
       const metadataGlobal = await Utils.metadata.getGlobal ()
       const metadataLocal = await Utils.metadata.getLocal (template)
 
-      return _.merge ({}, metadataLocal, metadataGlobal?.templates?.[template])
+      const data = metadataGlobal?.templates?.[template]
+      return merge (data, metadataLocal)
     },
 
     getGlobal: async (): Promise<MetadataGlobal | undefined> => {
@@ -154,7 +155,7 @@ const Utils = {
   shell: {
 
     cd: (targetPath: string): void => {
-      const shell = process.env['SHELL']
+      const shell = process.env.SHELL
 
       if (!shell) {
         throw new Error ('Unable to find current shell in use')

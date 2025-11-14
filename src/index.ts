@@ -2,9 +2,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { pack, visit } from 'json-archive'
-import _ from 'lodash'
 import picolate from 'picolate'
 import Base64 from 'radix64-encoding'
+import { clone, isBoolean, isString } from 'remeda'
 import { color } from 'specialist'
 import { HOOK_POSTINSTALL_NAME } from './constants'
 import Utils from './utils'
@@ -69,14 +69,14 @@ const Template = {
       const variableType = templateMetadata?.variables?.[variable]?.type
       const variableInitial = templateMetadata?.variables?.[variable]?.default
       if (variableType === 'string') {
-        const initial = _.isString (variableInitial) ? variableInitial : undefined
+        const initial = isString (variableInitial) ? variableInitial : undefined
         const value = await Utils.prompt.string (`${variable}:`, initial)
         if (value === undefined) {
           return
         }
         templateVariables[variable] = value
       } else if (variableType === 'boolean') {
-        const initial = _.isBoolean (variableInitial) ? variableInitial : undefined
+        const initial = isBoolean (variableInitial) ? variableInitial : undefined
         const value = await Utils.prompt.boolean (`${variable}:`, initial)
         if (value === undefined) {
           return
@@ -94,7 +94,7 @@ const Template = {
           return file
         }
         const templateTrimmed = template.replace (/\r?\n[^\S\r\n]+(\{\{.*?\}\})[^\S\r\n]*\r?$/gm, '$1')
-        const templateContext = { _, ...templateVariables }
+        const templateContext = { ...templateVariables }
         const templateOptions = { delimiters: templateDelimiters }
         const templateRendered = picolate.render (templateTrimmed, templateContext, templateOptions)
         file.contents = templateRendered
@@ -122,7 +122,7 @@ const Template = {
       const postinstallModule = await import (postinstallPath)
       const postinstall = postinstallModule.default || postinstallModule.postinstall
 
-      await postinstall (_.cloneDeep (templateVariables))
+      await postinstall (clone (templateVariables))
     }
   },
 

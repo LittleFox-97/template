@@ -1,7 +1,15 @@
 {
-  "extends": "tsex/tsconfig.json",
   "compilerOptions": {
-    "noImplicitReturns": false,
-    "noUnusedParameters": false
-  }
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*"
+  ]
 }
