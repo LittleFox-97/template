@@ -1,27 +1,12 @@
 {
   "name": "@fabiospampinato/template",
+  "type": "module",
+  "version": "2.3.1",
+  "packageManager": "pnpm@10.22.0",
+  "description": "A super-simple way to create new projects based on templates.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fabiospampinato/template.git"
-  },
-  "description": "A super-simple way to create new projects based on templates.",
-  "version": "2.3.1",
-  "type": "module",
-  "bin": {
-    "template": "dist/bin.js"
-  },
-  "main": "dist/index.js",
-  "exports": "./dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-     "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "clean": "tsex clean",
-    "compile": "tsex compile",
-    "compile:watch": "tsex compile --watch",
-    "test": "tsex test",
-    "test:watch": "tsex test --watch",
-    "prepublishOnly": "tsex prepare"
   },
   "keywords": [
     "template",
@@ -31,6 +16,22 @@
     "cli",
     "simple"
   ],
+  "exports": "./dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "template": "dist/bin.js"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "clean": "tsex clean",
+    "compile": "tsex compile",
+    "compile:watch": "tsex compile --watch",
+    "test": "tsex test",
+    "test:watch": "tsex test --watch",
+    "prepublishOnly": "tsex prepare"
+  },
   "dependencies": {
     "json-archive": "^2.1.0",
     "lodash": "^4.17.21",
